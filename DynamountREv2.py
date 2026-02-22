@@ -1,3 +1,6 @@
+print(22*"=")
+print("SoundSpiral R.E.D V1.0")
+print(22*"=")
 import numpy as np
 import DynamountREv2_helper as h
 from TMC_2209.TMC_2209_StepperDriver import *
@@ -5,11 +8,10 @@ from sshkeyboard import listen_keyboard, stop_listening
 import time
 import json
 import os
-import threading
+#import threading
 
 #Initial settings
 mic_dim = 121
-#mic_dim = 500
 lin_X = 0
 lin_Y = 0
 mic_dim = mic_dim + 20
@@ -37,15 +39,6 @@ else:
 def TCP_pos():
     return np.round(Base.matrix() @ T1.matrix() @ T2.matrix() @ T3.matrix() @ TCP.matrix(),2)
 
-print(TCP_pos()[0,3])
-print(TCP_pos())
-
-print(np.rint(TCP_pos()[0,3]).astype(int))
-print(TCP_pos())
-
-print("------------------------")
-print("SoundSpiral R.E.D V0.9.2 TEST")
-print("------------------------")
 
 #Stepper settings
 tmc = TMC_2209(5, 19, 26, loglevel=Loglevel.INFO, driver_address=0)
@@ -56,15 +49,12 @@ tmcY = TMC_2209(22, 11, 7, loglevel=Loglevel.INFO, driver_address=2)
 time.sleep(0.5)
 
 
-
-
 tmc.set_direction_reg(False)
 tmc.set_current(700)
 tmc.set_interpolation(False)
 tmc.set_spreadcycle(False)
 tmc.set_microstepping_resolution(2)
 tmc.set_internal_rsense(False)
-#tmc.set_motor_enabled(True)
 tmc.set_acceleration_fullstep(20)
 tmc.set_max_speed_fullstep(20)
 time.sleep(0.5)
@@ -75,7 +65,6 @@ tmcY.set_interpolation(False)
 tmcY.set_spreadcycle(False)
 tmcY.set_microstepping_resolution(2)
 tmcY.set_internal_rsense(False)
-#tmcY.set_motor_enabled(True)
 tmcY.set_acceleration_fullstep(100)
 tmcY.set_max_speed_fullstep(100)
 time.sleep(0.5)
@@ -86,10 +75,10 @@ tmcX.set_interpolation(False)
 tmcX.set_spreadcycle(False)
 tmcX.set_microstepping_resolution(2)
 tmcX.set_internal_rsense(False)
-#tmcX.set_motor_enabled(True)
 tmcX.set_acceleration_fullstep(100)
 tmcX.set_max_speed_fullstep(100)
-#time.sleep(5)
+
+time.sleep(0.5)
 tmc.set_motor_enabled(True)
 tmcY.set_motor_enabled(True)
 tmcX.set_motor_enabled(True)
@@ -257,7 +246,7 @@ def press(key):
         try:
             choice = int(input("\nSelect number for deletion: ")) - 1
             name, values = entries[choice]
-            confirmation = input(f"Are you sure you want to delete: {name} Y/N\n").lower()
+            confirmation = input(f"\nAre you sure you want to delete: {name} Y/N\n").lower()
             if name in data and confirmation == "y":
                 data.pop(name)
                 with open("poses.json", "w") as f:
@@ -289,7 +278,7 @@ def press(key):
         stop_listening()
         time.sleep(0.1)
         try:
-            mic_dim = int(input(f"Enter mic dim in mm\nDefault 121mm\n")) + 20
+            mic_dim = int(input(f"\nEnter mic dim in mm\nPress 'enter' for default 121mm\n")) + 20
             TCP.r = mic_dim
         except:
             print("mic dim set to default")
@@ -307,16 +296,19 @@ def update_display():
     TCP_matrix = TCP_pos()
     os.system("clear")
 
-    if loaded:
-        print(f"Saved position: {loaded_name}")
 
-    print(f"""Rotation:{TCP.Theeta}deg
-X:{round((TCP_matrix[0,3] - (199 + mic_dim - 141))/0.5,0)*0.5}mm
-Y:{round((TCP_matrix[1,3]/0.5),0)*0.5}mm""")
+
+    print(f"""Rotation:\033[1;32m{TCP.Theeta}deg\033[0m
+X:\033[1;32m{round((TCP_matrix[0,3] - (199 + mic_dim - 141))/0.5,0)*0.5}mm\033[0m
+Y:\033[1;32m{round((TCP_matrix[1,3]/0.5),0)*0.5}mm\033[0m""")
     
-    print(f"""Mic dimension: {mic_dim-20}mm
-Rotational steps: {round(rot_steps/4,3)}deg
-Linear steps {round(lin_steps/10,3)}mm""")
+    print(f"""Mic dimension:\033[1;32m{mic_dim-20}mm\033[0m
+Rotational steps:\033[1;32m{round(rot_steps/4,3)}deg\033[0m
+Linear steps:\033[1;32m{round(lin_steps/10,3)}mm\033[0m
+""")
+    
+    if loaded:
+        print(f"Saved position:\033[1;32m{loaded_name}\n\033[0m")
     
     print(f"""WASD = linear movement
 QE = rotation
